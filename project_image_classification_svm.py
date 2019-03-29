@@ -9,6 +9,20 @@ import matplotlib.pyplot as plt
 from keras.preprocessing import image
 from pathlib import Path
 import os
+def predict_animal(record_parameters,x_test):
+    x=x_test
+    x=x.reshape((1,3072))
+    majority_count=np.zeros((len(keys),))
+    for i in range(len(record_parameters)):
+       for j in range(len(record_parameters)):
+           if(record_parameters[i][j]!=-1 and  record_parameters[i][j]!=0):
+               prediction=predict(x,record_parameters[i][j])
+               if(prediction>0):
+                majority_count[i]+=1
+               else:
+                  majority_count[j]+=1
+    #majority_count=sorted(majority_count)
+    return (np.argmax(majority_count))    
 def predict(x,curr_parameters):
     prediction=np.dot(x,curr_parameters.W.T)+curr_parameters.b
     return prediction
@@ -83,6 +97,7 @@ for folder in dirs:
     for image_name in folder.glob("*.jpg"):
         img=image.load_img(image_name,target_size=(32,32))
         img_array=image.img_to_array(img)
+        img_array=img_array/255.0
         if (key in dataset_dict.keys()):
             dataset_dict[key].append(img_array)
         else:
@@ -119,7 +134,13 @@ for i in range(len(keys)):
         #t+=1
         record_parameters[i][j]=curr_parameters
         record_parameters[j][i]=-1
-x=dataset_dict['horses'][4]
+        
+for i in range(20):
+    print(predict_animal(record_parameters,dataset_dict['dogs'][i]))
+
+
+       
+"""x=dataset_dict['horses'][4]
 x=x.reshape((1,3072))
 majority_count=np.zeros((len(keys),))
 for i in range(len(record_parameters)):
@@ -131,4 +152,4 @@ for i in range(len(record_parameters)):
             else:
                 majority_count[j]+=1
 #majority_count=sorted(majority_count)
-print(np.argmax(majority_count))    
+print(np.argmax(majority_count))"""    
